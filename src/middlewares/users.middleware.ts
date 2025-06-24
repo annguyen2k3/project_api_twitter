@@ -2,7 +2,9 @@ import { checkSchema } from 'express-validator'
 import { HttpStatus } from '~/constants/httpStatus'
 import { USER_MESSAGES } from '~/constants/messages'
 import { ErrorWithStatus } from '~/models/Errors'
+import { databaseService } from '~/services/database.service'
 import usersService from '~/services/users.service'
+import { hashPassword } from '~/utils/crypto'
 import { validate } from '~/utils/validation'
 
 export const registerValidation = validate(
@@ -89,6 +91,61 @@ export const registerValidation = validate(
           strictSeparator: true
         },
         errorMessage: USER_MESSAGES.DOB_IS_ISO8601
+      }
+    }
+  })
+)
+
+export const loginValidation = validate(
+  checkSchema({
+    email: {
+      isEmail: {
+        errorMessage: USER_MESSAGES.EMAIL_INVALID
+      },
+      trim: true,
+      custom: {
+        options: async (value) => {
+          const isExist = await usersService.checkEmailExists(value)
+          if (!isExist) {
+            throw new Error(USER_MESSAGES.USER_NOT_FOUND)
+          }
+          return true
+        }
+      }
+    },
+    password: {
+      notEmpty: {
+        errorMessage: USER_MESSAGES.PASSWORD_REQUIRED
+      },
+      isString: {
+        errorMessage: USER_MESSAGES.PASSWORD_STRING
+      },
+      isLength: {
+        options: {
+          min: 6,
+          max: 50
+        },
+        errorMessage: USER_MESSAGES.PASSWORD_LENGTH
+      },
+      isStrongPassword: {
+        options: {
+          minLength: 6,
+          minLowercase: 1,
+          minUppercase: 1,
+          minNumbers: 1,
+          minSymbols: 1
+        },
+        errorMessage: USER_MESSAGES.PASSWORD_STRONG
+      },
+      custom: {
+        options: async (value, { req }) => {
+          const user = await databaseService.users.findOne({ email: req.body.email, password: hashPassword(value) })
+          if (user === null) {
+            throw new Error(USER_MESSAGES.PASSWORD_INCORRECT)
+          }
+          req.user = user
+          return true
+        }
       }
     }
   })

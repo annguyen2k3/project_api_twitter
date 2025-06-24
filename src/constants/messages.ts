@@ -3,12 +3,14 @@ export const COMMON_MESSAGES = {
 } as const
 
 export const USER_MESSAGES = {
+  USER_NOT_FOUND: 'User not found',
   NAME_REQUIRED: 'Name is required',
   NAME_STRING: 'Name must be a string',
   NAME_LENGTH: 'Name must be between 1 and 100 characters',
   EMAIL_REQUIRED: 'Email is required',
   EMAIL_INVALID: 'Invalid email format',
   EMAIL_EXISTS: 'Email already exists',
+  PASSWORD_INCORRECT: 'Incorrect password',
   PASSWORD_REQUIRED: 'Password is required',
   PASSWORD_STRING: 'Password must be a string',
   PASSWORD_LENGTH: 'Password must be between 6 and 50 characters',
