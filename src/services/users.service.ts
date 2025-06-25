@@ -4,6 +4,9 @@ import { RegisterReqBody } from '~/models/requests/User.request'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
 import { TokenType } from '~/constants/enums'
+import { sign } from 'crypto'
+import RefreshToken from '~/models/schemas/RefreshToken.schema'
+import { ObjectId } from 'mongodb'
 
 class UserService {
   private signAccessToken(user_id: string) {
@@ -13,7 +16,7 @@ class UserService {
         token_type: TokenType.AccessToken
       },
       options: {
-        expiresIn: '15m'
+        expiresIn: '15M'
       }
     })
   }
@@ -25,9 +28,13 @@ class UserService {
         token_type: TokenType.RefreshToken
       },
       options: {
-        expiresIn: '100d'
+        expiresIn: '100D'
       }
     })
+  }
+
+  private signAccessAndRefreshToken(user_id: string) {
+    return Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
   }
 
   async register(payload: RegisterReqBody) {
@@ -39,10 +46,12 @@ class UserService {
       })
     )
     const user_id = result.insertedId.toString()
-    const [access_token, refresh_token] = await Promise.all([
-      this.signAccessToken(user_id),
-      this.signRefreshToken(user_id)
-    ])
+    const [access_token, refresh_token] = await this.signAccessAndRefreshToken(user_id)
+
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token })
+    )
+
     return {
       access_token,
       refresh_token
@@ -52,6 +61,19 @@ class UserService {
   async checkEmailExists(email: string) {
     const isExistsEmail = await databaseService.users.findOne({ email })
     return Boolean(isExistsEmail)
+  }
+
+  async login(user_id: string) {
+    const [access_token, refresh_token] = await this.signAccessAndRefreshToken(user_id)
+
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token })
+    )
+
+    return {
+      access_token,
+      refresh_token
+    }
   }
 }
 

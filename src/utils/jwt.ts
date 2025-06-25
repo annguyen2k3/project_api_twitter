@@ -1,3 +1,5 @@
+import { config } from 'dotenv'
+config()
 import jwt, { PrivateKey, Secret, SignOptions } from 'jsonwebtoken'
 
 export const signToken = ({
