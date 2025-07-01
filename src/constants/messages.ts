@@ -19,5 +19,11 @@ export const USER_MESSAGES = {
   CONFIRM_PASSWORD_REQUIRED: 'Confirm password is required',
   CONFIRM_PASSWORD_MISMATCH: 'Passwords confirmation does not match password',
   DOB_REQUIRED: 'Date of birth is required',
-  DOB_IS_ISO8601: 'Date of birth must be a valid ISO 8601 date'
+  DOB_IS_ISO8601: 'Date of birth must be a valid ISO 8601 date',
+  ACCESS_TOKEN_REQUIRED: 'Access token is required',
+  ACCESS_TOKEN_INVALID: 'Access token is invalid',
+  REFRESH_TOKEN_REQUIRED: 'Refresh token is required',
+  REFRESH_TOKEN_INVALID: 'Refresh token is invalid',
+  USED_REFRESH_TOKEN_OR_NOT_EXIST: 'Used refresh token or not exists',
+  LOGOUT_SUCCESS: 'Logout successful'
 } as const

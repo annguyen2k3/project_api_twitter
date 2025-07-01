@@ -7,6 +7,7 @@ import { TokenType } from '~/constants/enums'
 import { sign } from 'crypto'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import { ObjectId } from 'mongodb'
+import { USER_MESSAGES } from '~/constants/messages'
 
 class UserService {
   private signAccessToken(user_id: string) {
@@ -73,6 +74,13 @@ class UserService {
     return {
       access_token,
       refresh_token
+    }
+  }
+
+  async logout(refresh_token: string) {
+    await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    return {
+      message: USER_MESSAGES.LOGOUT_SUCCESS
     }
   }
 }
