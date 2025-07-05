@@ -165,9 +165,7 @@ export const accessTokenValidator = validate(
   checkSchema(
     {
       Authorization: {
-        notEmpty: {
-          errorMessage: USER_MESSAGES.ACCESS_TOKEN_REQUIRED
-        },
+        trim: true,
         custom: {
           options: async (value: string, { req }) => {
             const access_token = value.split(' ')[1]
@@ -175,7 +173,10 @@ export const accessTokenValidator = validate(
               throw new ErrorWithStatus(USER_MESSAGES.ACCESS_TOKEN_REQUIRED, HttpStatus.UNAUTHORIZED)
             }
             try {
-              const decoded_authorization = await verifyToken({ token: access_token })
+              const decoded_authorization = await verifyToken({
+                token: access_token,
+                secretOrPublicKey: process.env.JWT_SECRET_ACCESS_TOKEN as string
+              })
               ;(req as Request).decoded_authorization = decoded_authorization
             } catch (error) {
               throw new ErrorWithStatus(capitalize((error as JsonWebTokenError).message), HttpStatus.UNAUTHORIZED)
@@ -194,14 +195,15 @@ export const refreshTokenValidator = validate(
   checkSchema(
     {
       refresh_token: {
-        notEmpty: {
-          errorMessage: USER_MESSAGES.REFRESH_TOKEN_REQUIRED
-        },
+        trim: true,
         custom: {
           options: async (value, { req }) => {
+            if (!value) {
+              throw new ErrorWithStatus(USER_MESSAGES.REFRESH_TOKEN_REQUIRED, HttpStatus.UNAUTHORIZED)
+            }
             try {
               const [decoded_refresh_token, refresh_token] = await Promise.all([
-                verifyToken({ token: value }),
+                verifyToken({ token: value, secretOrPublicKey: process.env.JWT_SECRET_REFRESH_TOKEN as string }),
                 databaseService.refreshTokens.findOne({ token: value })
               ])
               if (!refresh_token) {
