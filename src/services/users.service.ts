@@ -43,7 +43,8 @@ class UserService {
   async register(payload: RegisterReqBody) {
     const user_id = new ObjectId()
     const email_verify_token = await this.signEmailVerifyToken(user_id.toString())
-    const result = await databaseService.users.insertOne(
+
+    await databaseService.users.insertOne(
       new User({
         ...payload,
         _id: user_id,
@@ -56,7 +57,9 @@ class UserService {
 
     await databaseService.refreshTokens.insertOne(new RefreshToken({ user_id: user_id, token: refresh_token }))
 
+    // Gửi email xác thực (giả sử đã gửi thành công)
     console.log('email_verify_token:', email_verify_token)
+
     return {
       access_token,
       refresh_token
@@ -119,6 +122,25 @@ class UserService {
     return {
       access_token,
       refresh_token
+    }
+  }
+  async resendVerifyEmail(user_id: string) {
+    const email_verify_token = await this.signEmailVerifyToken(user_id)
+
+    // Gửi email (giả sử đã gửi thành công)
+    console.log('Resend verify email:', email_verify_token)
+
+    await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      {
+        $set: {
+          email_verify_token
+        },
+        $currentDate: { updated_at: true }
+      }
+    )
+    return {
+      message: USER_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS
     }
   }
 }
