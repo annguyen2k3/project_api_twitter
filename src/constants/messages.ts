@@ -33,5 +33,6 @@ export const USER_MESSAGES = {
   CHECK_EMAIL_TO_FORGOT_PASSWORD: 'Please check your email to reset your password',
   FORGOT_PASSWORD_TOKEN_IS_REQUIRED: 'Forgot password token is required',
   VERIFY_FORGOT_PASSWORD_SUCCESS: 'Verify forgot password successfully',
-  RESET_PASSWORD_SUCCESS: 'Reset password successfully'
+  RESET_PASSWORD_SUCCESS: 'Reset password successfully',
+  GET_ME_SUCCESS: 'Get current user information successfully'
 } as const
