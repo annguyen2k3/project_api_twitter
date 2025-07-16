@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import { RequestHandler, Router } from 'express'
 import {
   followController,
   forgotPasswordController,
@@ -8,6 +8,7 @@ import {
   registerController,
   resendVerifyEmailController,
   resetPasswordController,
+  unFollowController,
   updateMeController,
   verifyEmailController,
   verifyForgotPasswordController
@@ -22,6 +23,7 @@ import {
   refreshTokenValidator,
   registerValidation,
   resetPasswordValidation,
+  unFollowValidator,
   updateMeValidator,
   verifiedUserValidator,
   verifyForgotPasswordValidation
@@ -125,6 +127,19 @@ usersRouter.post(
   verifiedUserValidator,
   followValidator,
   wrapRequestHandler(followController)
+)
+
+// Description: Unfollow someone
+// Path: /users/follow/:user_id
+// Method: DELETE
+// Header: { Authorization: Bearer <access_token> }
+// Body: { }
+usersRouter.delete(
+  '/follow/:user_id',
+  accessTokenValidator,
+  verifiedUserValidator,
+  unFollowValidator,
+  wrapRequestHandler(unFollowController as RequestHandler)
 )
 
 export default usersRouter

@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
-import { ParamsDictionary } from 'express-serve-static-core'
-import { result } from 'lodash'
+import { NextFunction, ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from 'mongodb'
 import { UserVerifyStatus } from '~/constants/enums'
 import { HttpStatus } from '~/constants/httpStatus'
@@ -14,6 +13,7 @@ import {
   RegisterReqBody,
   ResetPasswordReqBody,
   TokenPayload,
+  UnfollowReqParams,
   UpdateMeReqBody,
   VerifyForgotPasswordReqBody
 } from '~/models/requests/User.request'
@@ -140,5 +140,12 @@ export const followController = async (req: Request<ParamsDictionary, any, Follo
   const { user_id } = req.decoded_authorization as TokenPayload
   const { followed_user_id } = req.body
   const result = await usersService.follow(user_id, followed_user_id)
+  res.json(result)
+}
+
+export const unFollowController = async (req: Request<UnfollowReqParams>, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { user_id: followed_user_id } = req.params
+  const result = await usersService.unFollow(user_id, followed_user_id)
   res.json(result)
 }
