@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import {
+  followController,
   forgotPasswordController,
   loginController,
   logoutController,
@@ -15,6 +16,7 @@ import { filterMiddleware } from '~/middlewares/common.middleware'
 import {
   accessTokenValidator,
   emailVerifyTokenValidator,
+  followValidator,
   forgotPasswordValidation,
   loginValidation,
   refreshTokenValidator,
@@ -110,6 +112,19 @@ usersRouter.patch(
     'cover_photo'
   ]),
   wrapRequestHandler(updateMeController)
+)
+
+// Description: Follow someone
+// Path: /users/follow
+// Method: POST
+// Header: { Authorization: Bearer <access_token> }
+// Body: { followed_user_id: string }
+usersRouter.post(
+  '/follow',
+  accessTokenValidator,
+  verifiedUserValidator,
+  followValidator,
+  wrapRequestHandler(followController)
 )
 
 export default usersRouter
